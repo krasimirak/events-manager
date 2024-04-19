@@ -10,6 +10,13 @@ enum StatusCode {
 class EventManager {
     private events = new Map<string, Event>();
 
+    /**
+     * Adds a new event to the event manager.
+     * @param {Event} newEvent - The event to add.
+     * @returns {StatusCode} - The status code indicating the result of the operation.
+     * Status code FAIL indicates event already exists in the event manager
+     * Status code OK indicates successful addition of the event.
+     */
     addEvent(newEvent: Event): StatusCode {
         if (this.events.has(newEvent.eventId)) return StatusCode.Fail;
 
@@ -17,6 +24,11 @@ class EventManager {
         return StatusCode.Ok;
     }
 
+    /**
+     * Updates existing event in the event manager.
+     * @param {Event} updatedEvent - The updated event
+     * @returns {StatusCode} - The status code indicating the result of the operation.
+     */
     updateEvent(updatedEvent: Event): StatusCode {
         const event = this.events.get(updatedEvent.eventId);
         if (!event) return StatusCode.NotFound;
@@ -25,6 +37,11 @@ class EventManager {
         return StatusCode.Ok;
     }
 
+    /**
+     * Deletes event from the event manager.
+     * @param {string} eventId - Event ID
+     * @returns {StatusCode} - The status code indicating the result of the operation.
+     */
     deleteEvent(eventId: string) : StatusCode {
         if (!this.events.has(eventId)) return StatusCode.NotFound;
 
@@ -32,6 +49,12 @@ class EventManager {
         return StatusCode.Ok;
     }
 
+    /**
+     * Retrieves event by ID.
+     * @param {string} eventId - Event ID
+     * @returns {{ statusCode: StatusCode, event?: Event }} - Object with status code indicating result of the operation.
+     * If the status code is OK the object contains the event.
+     */
     getEvent(eventId: string): { statusCode: StatusCode, event?: Event} {
         const event = this.events.get(eventId);
 
@@ -40,10 +63,23 @@ class EventManager {
         return { statusCode: StatusCode.NotFound };
     }
 
+    /**
+     * Retrieves all events
+     * @returns {Event[]} - Events array
+     */
     getEvents(): Event[] {
         return [...this.events.values()];
     }
 
+    /**
+     * Adds participant to an event based on the event ID
+     * @param {Participant} participant - New participant
+     * @param {string} eventId - Event ID
+     * @returns {StatusCode} - The status code indicating the result of the operation.
+     * Status code FAIL is returned if participant already exists.
+     * Status code NOT FOUND indicates event is not found.
+     * Status code OK indicates successful adding of participant
+     */
     addParticipant(participant: Participant, eventId: string): StatusCode {
         const event = this.events.get(eventId);
 
@@ -57,6 +93,14 @@ class EventManager {
         return StatusCode.NotFound;
     }
 
+    /**
+     * Removes participant of an event based on the event ID
+     * @param {Participant} participant - Participant to remove
+     * @param {string} eventId - Event ID
+     * @returns {StatusCode} - The status code indicating the result of the operation.
+     * Status code NOT FOUND indicates event or participant is not found.
+     * Status code OK indicates successful removing of participant
+     */
     removeParticipant(participant: Participant, eventId: string): StatusCode {
         const event = this.events.get(eventId);
 
