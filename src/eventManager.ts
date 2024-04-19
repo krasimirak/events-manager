@@ -8,49 +8,44 @@ enum StatusCode {
 }
 
 class EventManager {
-    private events: Event[] = [];
+    private events = new Map<string, Event>();
 
     addEvent(newEvent: Event): StatusCode {
-        if (this.events.some(event => event.eventId === newEvent.eventId)) {
-            return StatusCode.Fail;
-        }
+        if (this.events.has(newEvent.eventId)) return StatusCode.Fail;
 
-        this.events.push(newEvent);
+        this.events.set(newEvent.eventId, newEvent);
         return StatusCode.Ok;
     }
 
     updateEvent(updatedEvent: Event): StatusCode {
-        const index = this.events.findIndex(event => event.eventId === updatedEvent.eventId);
+        const event = this.events.get(updatedEvent.eventId);
+        if (!event) return StatusCode.NotFound;
 
-        if (index === -1) return StatusCode.NotFound;
-
-        this.events[index] = updatedEvent;
+        this.events.set(updatedEvent.eventId, { ...event, ...updatedEvent });
         return StatusCode.Ok;
     }
 
     deleteEvent(eventId: string) : StatusCode {
-        const index = this.events.findIndex(event => event.eventId === eventId);
+        if (!this.events.has(eventId)) return StatusCode.NotFound;
 
-        if (index === -1) return StatusCode.NotFound;
-
-        this.events.splice(index, 1);
+        this.events.delete(eventId);
         return StatusCode.Ok;
     }
 
     getEvent(eventId: string): { statusCode: StatusCode, event?: Event} {
-        const event: Event | undefined = this.events.find(event => event.eventId === eventId);
+        const event = this.events.get(eventId);
 
         if (event) return { statusCode: StatusCode.Ok, event };
 
         return { statusCode: StatusCode.NotFound };
     }
 
-    listEvents(): Event[] {
-        return this.events;
+    getEvents(): Event[] {
+        return [...this.events.values()];
     }
 
     addParticipant(participant: Participant, eventId: string): StatusCode {
-        const event = this.events.find(event => event.eventId === eventId);
+        const event = this.events.get(eventId);
 
         if (event) {
             event.participants.push(participant);
@@ -61,7 +56,7 @@ class EventManager {
     }
 
     removeParticipant(participant: Participant, eventId: string): StatusCode {
-        const event = this.events.find(event => event.eventId === eventId);
+        const event = this.events.get(eventId);
 
         if (event) {
             const participantIndex = event.participants.findIndex(person => person.email === participant.email);
