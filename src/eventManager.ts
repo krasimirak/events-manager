@@ -48,6 +48,8 @@ class EventManager {
         const event = this.events.get(eventId);
 
         if (event) {
+            if (event.participants.some(person => person.email === participant.email)) return StatusCode.Fail;
+
             event.participants.push(participant);
             return StatusCode.Ok;
         }
